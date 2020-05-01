@@ -10,4 +10,6 @@ Modules used:
   * os
   * sys
   * art
+  * colorama
+  * time
   

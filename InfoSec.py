@@ -11,6 +11,7 @@ records encryption and decryption.
 
 import random as rm
 
+# This function encrypts the encrypted text
 def Encode(msg):
     # msg is the text to encrypt
 
@@ -34,12 +35,12 @@ def Encode(msg):
     ans = enc+chr(rnum)
     # Reversed the ans text
     HASH = ans[::-1]
-    # Return encrypted text
+
+    # Return hashed text
     return HASH
 
-
+# This function decrypts the encrypted text
 def Decode(HASH):
-    # HASH is the text to decrypt
 
     dec = tp = ''
 

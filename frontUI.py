@@ -8,20 +8,30 @@
 This is the starting script.This will handle welcome 
 screen operations. Run this script to start RootHash
 '''
-
-from art import tprint      #For Display the RootHash ASCII Art
-from random import choice   #For choose random font style from styles
-import getpass as code      #For get the windows user account name
-import Operations as OPT    #RootHash Operations.py script 
+from colorama import Fore,Style     #For Colored Text In Terminal
+from colorama import init           #For Colored Text In Terminal
+from art import tprint              #For Display the RootHash ASCII Art
+from random import choice           #For choose random font style from styles
+import getpass as code              #For get the windows user account name
+import Operations as OPT            #RootHash Operations.py script 
 import os
 import sys
+
+#Initialize colorama module
+init()
 
 #RootHash Title Font Styles
 styles = ('isometric', 'STAR WARS', 'larry 3d', 'subzero', 'swampland', 'big', 'Epic',
           'sweet', 'speed', 'poison', 'merlin1', "fire_font's", 'colossal', 'BROADWAY')
 
+#RootHash Colors
+colors = (Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.MAGENTA, Fore.RED, Fore.YELLOW)
+
 #Choose random font style from above fonts
 FONT = choice(styles)
+
+#Choose random color from above colors
+COLOR = choice(colors)
 
 #Get the user account name
 user = code.getuser() 
@@ -47,7 +57,9 @@ def UserOptions():
     os.system('CLS')     
     print('\n   ')
     # Display RootHash title as ASCII art
+    print(COLOR+Style.BRIGHT)
     tprint('RootHash', FONT)
+    print(Fore.RESET)
     print('\n')
 
     #This part get the RootHash owner name from settings file
@@ -61,16 +73,16 @@ def UserOptions():
 
     #RootHash user options in welcome screen
     print(f'Welcome To RootHash {Owner}')
-    print('[1] Add New Record')
-    print('[2] Modify Record')
-    print('[3] Delete Record')
-    print('[4] View All Records')
-    print('[5] Change Root Password')
-    print('[6] About RootHash')
-    print('[7] Exit')
+    print(' [1] Add New Record')
+    print(' [2] Modify Record')
+    print(' [3] Delete Record')
+    print(' [4] View All Records')
+    print(' [5] Change Root Password')
+    print(' [6] About RootHash')
+    print(' [7] Exit\n')
     try:
         # Get user command
-        cmd = input('[>>] ')
+        cmd = input('[>>] Your Cpmmand : ')
 
         if cmd == '1':
             OPT.new_entry(Owner)
@@ -87,7 +99,8 @@ def UserOptions():
         elif cmd == '7':
             sys.exit(2)
         else:
-            print('Invalid Command.')
+            print(Fore.RED + '\n[!] Invalid Command')
+            print(Fore.RESET)
             # Run windows PAUSE command 
             os.system('PAUSE')
             UserOptions()

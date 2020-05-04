@@ -70,7 +70,7 @@ def interrupt_input(func):
 
     try:
         # Get the command from user
-        cmd = str(input('[!] Press 1 to start again. Press 2 to exit : '))
+        cmd = str(input('\n[!] Press 1 to start again. Press 2 to exit : '))
         # Check the running situation
         if cmd == '1':
             if func == 1:
@@ -80,8 +80,8 @@ def interrupt_input(func):
                 # Initialze master password
                 first_time()
         elif cmd == '2':
-            # Exit RootHash
-            os.system('EXIT')
+            # Exit RootHash            
+            quit()
         else:
             # If user entered an invalid command this part will execute
             print(Fore.RED + '\n[!] Invalid input.')
@@ -161,21 +161,26 @@ def first_time():
         ConfirmP = code.getpass('[!] Confirm root password : ')
         # Matching Passwords
         if NewP != ConfirmP:
-            print(Fore.RED+Style.BRIGHT + '[!] Password is not matching!')
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password is not matching!')
             print(Fore.RESET)
             os.system('PAUSE')
-
             interrupt_input(2)
         else:
-            try:
-                # Make RootHash directory
-                os.mkdir(DPATH)
-            except FileExistsError:
-                pass
-            # Create settings file
-            create_settings(Owner, NewP)
-            # Create database file
-            create_database(Owner)
+            if len(NewP) >= 8:
+                try:
+                    # Make RootHash directory
+                    os.mkdir(DPATH)
+                except FileExistsError:
+                    pass
+                # Create settings file
+                create_settings(Owner, NewP)
+                # Create database file
+                create_database(Owner)
+            else:
+                print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
+                print(Fore.RESET)
+                os.system('PAUSE')
+                interrupt_input(2)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:

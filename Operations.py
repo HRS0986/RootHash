@@ -154,19 +154,29 @@ def first_time():
         print('\nWelcome to RootHash.Please enter required details')
         # Get owner name for RootHash
         Owner = input('[!] Enter your name : ')
+
+        # Validate Name
+        if not Owner.isalpha():       
+            print(Fore.RED+Style.BRIGHT + '\n[!] Name can only contain letters')
+            print(Fore.RESET)
+            os.system('PAUSE')
+            os.system('CLS')
+            first_time()
+
         print('\nEnter a new root password.This will required when you enter RootHash')
         # Get Master Password from user
         NewP = code.getpass('[!] New root password : ')
         # Get password again from user
         ConfirmP = code.getpass('[!] Confirm root password : ')
-        # Matching Passwords
+        # Verifying password
         if NewP != ConfirmP:
             print(Fore.RED+Style.BRIGHT + '\n[!] Password is not matching!')
-            print(Fore.RESET)
-            os.system('PAUSE')
+            print(Fore.RESET)            
             interrupt_input(2)
         else:
-            if len(NewP) >= 8:
+            # Validate password
+            isValidated = ValidatePassword(NewP)            
+            if isValidated:
                 try:
                     # Make RootHash directory
                     os.mkdir(DPATH)
@@ -178,6 +188,8 @@ def first_time():
                 create_database(Owner)
             else:
                 print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
+                print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 digit')
+                print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
                 print(Fore.RESET)
                 os.system('PAUSE')
                 interrupt_input(2)
@@ -348,8 +360,8 @@ def getpw(Owner,func):
         password = code.getpass('[!] Enter account password : ')
         # Confirm password
         confirm = code.getpass('[!] Confirm account password : ')
+        
         # Matching above two passwords
-
         if confirm == password:
             # Retrun Password
             return password
@@ -506,7 +518,7 @@ def change_mastercode():
         # Get old master password from user
         opw = code.getpass('[!] Enter old root password : ')
 
-        # Validate old master password user entered above
+        # Check old master password user entered above
         if opw != old:
             print(Fore.RED + '\n[!] Old root password is incorrect')
             print(Fore.RESET)
@@ -523,22 +535,31 @@ def change_mastercode():
                 print(Fore.RESET)
                 interrupt_input(1)
             else:
-                Owner = ''
-                # Access settings file
-                with open(SPATH, 'r') as sfile:
-                    # Get owner name
-                    Owner = sfile.readline()
+                # Validate password
+                isValidated = ValidatePassword(NewP)
+                if isValidated:
+                    Owner = ''
+                    # Access settings file
+                    with open(SPATH, 'r') as sfile:
+                        # Get owner name
+                        Owner = sfile.readline()
 
-                # Access settings file
-                with open(SPATH, 'w') as sfile:
-                    # Write new encrypteed master password on settings file 
-                    sfile.write(f'{Owner}{InfoSec.Encode(NewP)}')
-                    
-                print(Fore.GREEN + '\n[+] Password changed successfully')
-                print(Fore.RESET)
-                os.system('PAUSE')
-                # Return to user options screen.
-                FUI.UserOptions()
+                    # Access settings file
+                    with open(SPATH, 'w') as sfile:
+                        # Write new encrypteed master password on settings file 
+                        sfile.write(f'{Owner}{InfoSec.Encode(NewP)}')
+                        
+                    print(Fore.GREEN + '\n[+] Password changed successfully')
+                    print(Fore.RESET)
+                    os.system('PAUSE')
+                    # Return to user options screen.
+                    FUI.UserOptions()
+                else:
+                    print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
+                    print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 digit')
+                    print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
+                    print(Fore.RESET)                    
+                    interrupt_input(1)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
@@ -612,7 +633,7 @@ def login():
         # Get password as secure input
         x = code.getpass('[!] Enter root password : ')
 
-        # Validate Password
+        # Verify Password
         if x == pw:
             # Enter the RootHash
             FUI.UserOptions()
@@ -644,3 +665,20 @@ def displayTitle():
     print(Fore.RESET)
 
     print('\n')
+
+# This function validate master password when changing or setting it
+# This will return boolean value
+def ValidatePassword(password):
+    # Check password lenght
+    if len(password) < 8:
+        return False
+    # Check, if password only contains digits
+    elif password.isdigit():
+        return False
+    # Check, if password only contains letters
+    elif password.isalpha():
+        return False
+    # Check if password contains ascii characters
+    elif password.isascii():
+        return True
+    

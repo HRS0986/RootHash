@@ -73,12 +73,8 @@ def interrupt_input(func):
         cmd = str(input('\n[!] Press 1 to start again. Press 2 to exit : '))
         # Check the running situation
         if cmd == '1':
-            if func == 1:
-                # Change old master password
-                change_mastercode()
-            elif func == 2:
-                # Initialze master password
-                first_time()
+            # Call the function related to the situation
+            func()
         elif cmd == '2':
             # Exit RootHash            
             quit()
@@ -172,7 +168,7 @@ def first_time():
         if NewP != ConfirmP:
             print(Fore.RED+Style.BRIGHT + '\n[!] Password is not matching!')
             print(Fore.RESET)            
-            interrupt_input(2)
+            interrupt_input(first_time)
         else:
             # Validate password
             isValidated = ValidatePassword(NewP)            
@@ -192,7 +188,7 @@ def first_time():
                 print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
                 print(Fore.RESET)
                 os.system('PAUSE')
-                interrupt_input(2)
+                interrupt_input(first_time)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
@@ -522,7 +518,7 @@ def change_mastercode():
         if opw != old:
             print(Fore.RED + '\n[!] Old root password is incorrect')
             print(Fore.RESET)
-            interrupt_input(1)
+            interrupt_input(change_mastercode)
         else:
             # Get new master password from user
             NewP = code.getpass('[!] Enter new root password : ')
@@ -559,7 +555,7 @@ def change_mastercode():
                     print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 digit')
                     print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
                     print(Fore.RESET)                    
-                    interrupt_input(1)
+                    interrupt_input(change_mastercode)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:

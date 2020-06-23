@@ -25,11 +25,10 @@ Functions Content
 '''
 from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
-from art import tprint              #For Display the RootHash ASCII Art
-from random import choice           #For choose random font style from styles
-from time import sleep              #For make a delay in RootHash Title animation
 import getpass as code              #For get the windows user account name and secure input
-import tinydb as TDB                #For store data and manipulate data 
+import tinydb as TDB                #For store data and manipulate data
+import Credit as CDT                #Credit.py Script
+import initialize as ITZ            #initialize.py Script
 import frontUI as FUI               #frontUI.py Script
 import InfoSec                      #InfoSec.py Script
 import os
@@ -38,31 +37,29 @@ import os
 init()
 
 # RootHash Title Font Styles
-styles = ('isometric', 'STAR WARS', 'larry 3d', 'subzero', 'swampland', 'big', 'Epic',
-          'sweet', 'speed', 'poison', 'merlin1', "fire_font's", 'colossal', 'BROADWAY')
+styles = ITZ.styles
 
 # RootHash Colors
-colors = (Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.MAGENTA, Fore.RED, Fore.YELLOW)
+colors = ITZ.colors
 
 # Choose random color from above colors
-COLOR = choice(colors)
+COLOR = ITZ.COLOR
 
 # Choose random font style from above fonts
-FONT = choice(styles)
+FONT = ITZ.FONT
 
 # Get the user account name
-user = code.getuser()
+user = ITZ.user
 
 # This part contains path variables
-path = 'C:/Users/'
-expath = "/AppData/Local/RootHash"
-SPATH = path+user+expath+'/settings.csv'    # Settings path
-DPATH = path+user+expath                    # Database path
-EPATH = DPATH+'/Algo.csv'
+SPATH = ITZ.SPATH           # Settings path
+DPATH = ITZ.DPATH           # Database path
+EPATH = ITZ.EPATH
 
-# This function is called when setting master password.
-# If master password is not matching, this function is called
+
 def interrupt_input(func):
+    # This function is called when setting master password.
+    # If master password is not matching, this function is called
     # func is a parameter that decied the running situation
     # Situations:
     #           1.Changing master password
@@ -88,9 +85,11 @@ def interrupt_input(func):
     except KeyboardInterrupt:
         interrupt_input(func)
 
-# This function is called when RootHash need to use master password
-# This will decode the encrypted master password from settings file and return the password 
+
 def decode_root_pw():
+    # This function is called when RootHash need to use master password
+    # This will decode the encrypted master password from settings file and return the password 
+
     PWD = ''
     try:
         # Access to setting file
@@ -106,102 +105,18 @@ def decode_root_pw():
         return pw
     # if settings file is not exsist, this part will be execute
     except FileNotFoundError:        
-        first_time()
+        ITZ.first_time()
 
-# This function will be called in the first run of RootHash
-def create_settings(Owner, Password):
-    # Owner is the name of RootHash User
-    # Password is the RootHash Login password
 
-    # Get the encrypted pasword
-    Password = InfoSec.Encode(Password)
-    # Write encrypted password and owner name in settings.csv
-    with open(SPATH, 'a') as sfile:
-        sfile.write(f'{Owner}\n{Password}')
-    print(Fore.GREEN + '\n[+] Password created.',end='')
-    print(Fore.RESET)
-
-# This function will be called in the first run of RootHash 
-def create_database(Owner):
-    # Owner is the name of RootHash User
-
-    # Set the path to databse 
-    n = DPATH+'/'+Owner+'.json'
-    
-    # Create the database.The database is a .json file 
-    # Database name is {owner}
-    db = TDB.TinyDB(n)
-    print(Fore.GREEN + '[+] Database created.')
-    print(f'[+] Welcome to RootHash {Owner}.')
-    print(Fore.RESET)
-    os.system('PAUSE')
-    
-    # Return to User option screen
-    FUI.UserOptions()
-
-# This function executes first run in RootHash.
-# This will set Master password and owner name for RootHash
-# Also initialize settings and databse files.
-def first_time():
-    try:
-        # Displays RootHash ASCII Art
-        displayTitle()
-        
-        print('\nWelcome to RootHash.Please enter required details')
-        # Get owner name for RootHash
-        Owner = input('[!] Enter your name : ')
-
-        # Validate Name
-        if not Owner.isalpha():       
-            print(Fore.RED+Style.BRIGHT + '\n[!] Name can only contain letters')
-            print(Fore.RESET)
-            os.system('PAUSE')
-            os.system('CLS')
-            first_time()
-
-        print('\nEnter a new root password.This will required when you enter RootHash')
-        # Get Master Password from user
-        NewP = code.getpass('[!] New root password : ')
-        # Get password again from user
-        ConfirmP = code.getpass('[!] Confirm root password : ')
-        # Verifying password
-        if NewP != ConfirmP:
-            print(Fore.RED+Style.BRIGHT + '\n[!] Password is not matching!')
-            print(Fore.RESET)            
-            interrupt_input(first_time)
-        else:
-            # Validate password
-            isValidated = ValidatePassword(NewP)            
-            if isValidated:
-                try:
-                    # Make RootHash directory
-                    os.mkdir(DPATH)
-                except FileExistsError:
-                    pass
-                # Create settings file
-                create_settings(Owner, NewP)
-                # Create database file
-                create_database(Owner)
-            else:
-                print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
-                print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 digit')
-                print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
-                print(Fore.RESET)
-                os.system('PAUSE')
-                interrupt_input(first_time)
-
-    # This part ignores 'Ctrl+C cancel operation'
-    except KeyboardInterrupt:
-        first_time()
-
-# This function displays all records.
 def view_all(Owner):
+    # This function displays all records.
+        
     try:
         # Get access to database.
         db = TDB.TinyDB(f'{DPATH}/{Owner}.json')
         
         # Displays RootHash ASCII Art
-        displayTitle()
+        CDT.displayTitle(COLOR, FONT)
 
         print(r'====================={ ROOTHASH }====================='+'\n')
         i = 0
@@ -231,15 +146,16 @@ def view_all(Owner):
     except KeyboardInterrupt:
         view_all(Owner)
 
-# When deleting an exsiting record, this function is called.
-# User may input the record id that wish to delete from databse
+
 def delete_entry(Owner):
+    # When deleting an exsiting record, this function is called.
+    # User may input the record id that wish to delete from databse
     try:
         # Access to database.
         db = TDB.TinyDB(f'{DPATH}/{Owner}.json')
 
         # Displays RootHash ASCII Art
-        displayTitle()
+        CDT.displayTitle(COLOR, FONT)
 
         print('[!] Enter record ID for the record that you want to delete')
         print('[!] You can get the record ID from view all option')
@@ -289,9 +205,10 @@ def delete_entry(Owner):
     except KeyboardInterrupt:
         delete_entry(Owner)
 
-# This function is called when deleting or modifying record
-# This will check the id that user enterd
+
 def check_ID(Owner,func):
+    # This function is called when deleting or modifying record
+    # This will check the id that user enterd
     # func is a parameter that decied the running situation
     # Situations:
     #           1.Modify reocrd
@@ -343,9 +260,10 @@ def check_ID(Owner,func):
     except KeyboardInterrupt:
         check_ID(Owner,func)
 
-# This function will execute when getting password for a record from user.
-# This will return a string contain the password.
+
 def getpw(Owner,func):
+    # This function will execute when getting password for a record from user.
+    # This will return a string contain the password.
     # func is a parameter that decied which is the running situation.
     # Situations: 
     #           1.Creating new record
@@ -372,14 +290,16 @@ def getpw(Owner,func):
     except KeyboardInterrupt:
         getpw(Owner,func)
 
-# This function create a new record and save the record in database.
+
 def new_entry(Owner):
+    # This function create a new record and save the record in database.
+    
     try:
         # Get access to database.
         db = TDB.TinyDB(f'{DPATH}/{Owner}.json')
         
         # Displays RootHash ASCII Art
-        displayTitle()
+        CDT.displayTitle(COLOR, FONT)
 
         # Get account name from user.(Ex:- Gmail,iCloud,FB,etc....).
         account = str(input('[!] Enter account name : '))
@@ -421,15 +341,17 @@ def new_entry(Owner):
     except KeyboardInterrupt:
         new_entry(Owner)
 
-# This function is called when modifying an exsiting record.
-#User may input the record id that wish to modify.
+
 def modify(Owner):
+    # This function is called when modifying an exsiting record.
+    # User may input the record id that wish to modify.
+            
     try:
         # Access to database
         db = TDB.TinyDB(f'{DPATH}/{Owner}.json')
 
         # Displays RootHash ASCII Art
-        displayTitle()
+        CDT.displayTitle(COLOR, FONT)
 
         print('[!] Enter record ID for the record that you want to modify')
         print('[!] You can get the record ID from view all option')
@@ -502,14 +424,16 @@ def modify(Owner):
     except KeyboardInterrupt:
         modify(Owner)
 
-# This function is called when changing master password
-def change_mastercode(): 
+
+def change_mastercode():
+    # This function is called when changing master password
+    
     try:
         # Get decoded old master password from settings file
         old = decode_root_pw()
 
         # Displays RootHash ASCII Art
-        displayTitle()
+        CDT.displayTitle(COLOR, FONT)
 
         # Get old master password from user
         opw = code.getpass('[!] Enter old root password : ')
@@ -561,68 +485,13 @@ def change_mastercode():
     except KeyboardInterrupt:
         change_mastercode()
 
-# RootHash Credits Displaying
-def about():
-    try:
-        # Set RootHash Font styles
-        styles = ('isometric', 'STAR WARS', 'larry 3d', 'swampland', 'big','merlin1','amcaaa','banner3-d','arrows','heapy3d', 'BROADWAY')
-        from art import tprint as T
-        t = ''
 
-        # This part handle RootHash title animation =========================
-        # Clear terminal window
-        os.system('CLS')
-        # Wait 5 Seconds.Ignore key press 
-        print(COLOR)
-        sleep(1)
-        for i in 'RootHash':
-            os.system('CLS')
-            t += i
-            T(t, FONT)
-            sleep(1)
-        print(Fore.RESET)
-        print('\n')
-        print(r'{===========================================')
-        sleep(1)
-        print(r'[+] RootHash Password Manager')
-        sleep(1)
-        print(r'[+] Developed By HRS CREAtions')
-        sleep(1)
-        print(r'[+] Version 1.0')
-        sleep(1)
-        print(r'[+] heshanhfernando@gmail.com')
-        sleep(1)
-        print(r'===========================================}')
-
-        t = 'RootHash'        
-        for i in range(len(t), 0, -1):
-            f = t[:i]
-            os.system('CLS')
-            print(COLOR)
-            T(f, FONT)
-            print(Fore.RESET)
-            print('\n')
-            print(r'{===========================================')
-            print(r'[+] RootHash Password Manager')
-            print(r'[+] Developed By HRS CREAtions')
-            print(r'[+] Version 1.0')
-            print(r'[+] heshanhfernando@gmail.com')
-            print(r'===========================================}')
-            sleep(1)
-        os.system('CLS')
-        sleep(1)
-        # This part handle RootHash title animation =========================
-        FUI.UserOptions()
-
-    # This part ignores 'Ctrl+C cancel operation'
-    except KeyboardInterrupt:
-        about()
-
-# RootHash Login
 def login():
+    # RootHash Login function
+    
     try:
         # Displays RootHash ASCII Art
-        displayTitle()
+        CDT.displayTitle(COLOR, FONT)
 
         # Get decoded root password of RootHash from settings file
         pw = decode_root_pw()
@@ -645,26 +514,11 @@ def login():
     except KeyboardInterrupt:
         login()
 
-# This function displays RootHash ASCII Art
-def displayTitle():    
-    # Clear terminal window     
-    os.system('CLS')
-    print('\n')
 
-    # Initialize color
-    print(COLOR+Style.BRIGHT)
-
-    # Display RootHash title as ASCII art
-    tprint('RootHash', FONT)
-
-    # Reset color to default
-    print(Fore.RESET)
-
-    print('\n')
-
-# This function validate master password when changing or setting it
-# This will return boolean value
 def ValidatePassword(password):
+    # This function validate master password when changing or setting it
+    # This will return boolean value
+    
     # Check password lenght
     if len(password) < 8:
         return False

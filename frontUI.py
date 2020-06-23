@@ -11,36 +11,33 @@ screen operations. Run this script to start RootHash
 from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
 from art import tprint              #For Display the RootHash ASCII Art
-from random import choice           #For choose random font style from styles
-import getpass as code              #For get the windows user account name
-import Operations as OPT            #RootHash Operations.py script 
+import Operations as OPT            #RootHash Operations.py script
+import initialize as ITZ            #initialize.py Script
+import Credit as CDT                #RootHash Credit.py script
 import os
 import sys
 
 #Initialize colorama module
-init()
+init(convert=True)
 
 #RootHash Title Font Styles
-styles = ('isometric', 'STAR WARS', 'larry 3d', 'subzero', 'swampland', 'big', 'Epic',
-          'sweet', 'speed', 'poison', 'merlin1', "fire_font's", 'colossal', 'BROADWAY')
+styles = ITZ.styles
 
 #RootHash Colors
-colors = (Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.MAGENTA, Fore.RED, Fore.YELLOW)
+colors = ITZ.colors
 
 #Choose random font style from above fonts
-FONT = choice(styles)
+FONT = ITZ.FONT
 
 #Choose random color from above colors
-COLOR = choice(colors)
+COLOR = ITZ.COLOR
 
 #Get the user account name
-user = code.getuser() 
+user = ITZ.user
 
 #This part contains path variables
-path = 'C:/Users/'
-expath = "/AppData/Local/RootHash"
-Spath = path+user+expath+'/settings.csv'        # Settings path
-Dpath = path+user+expath                        # Database path
+Spath = ITZ.SPATH        # Settings path
+Dpath = ITZ.DPATH        # Database path
 
 #Strating function
 def main():
@@ -49,7 +46,7 @@ def main():
         OPT.login()
     else:
         #When RootHash execute first time in a computer, this will run
-        OPT.first_time()
+        ITZ.first_time()
 
 
 def UserOptions():
@@ -95,7 +92,7 @@ def UserOptions():
         elif cmd == '5':
             OPT.change_mastercode()
         elif cmd == '6':
-            OPT.about()
+            CDT.about(COLOR, FONT)
         elif cmd == '7':
             sys.exit(2)
         else:

@@ -1,3 +1,4 @@
+from errors import *                #For custom exceptions in RootHash
 from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
 from random import choice           #For choose random font style from styles
@@ -82,7 +83,7 @@ def first_time():
         Owner = input('[!] Enter your name : ')
 
         # Validate Name
-        if not Owner.isalpha():       
+        if not Owner.isalpha():
             print(Fore.RED+Style.BRIGHT + '\n[!] Name can only contain letters')
             print(Fore.RESET)
             os.system('PAUSE')
@@ -123,3 +124,9 @@ def first_time():
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
         first_time()
+
+
+def validateOwner(ownerName):
+    if not ownerName.isalpha():
+        raise NotAlphaError("Some characters are not allowed.")
+    

@@ -12,7 +12,9 @@ from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
 from art import tprint              #For Display the RootHash ASCII Art
 
-import Records as RCD
+from errors import InvalidCommandError
+
+import Records as RCD               #RootHash Records.py script
 import Operations as OPT            #RootHash Operations.py script
 import initialize as ITZ            #initialize.py Script
 import Credit as CDT                #RootHash Credit.py script
@@ -79,6 +81,7 @@ def UserOptions():
     print(' \t[5] Change Root Password')
     print(' \t[6] About RootHash')
     print(' \t[7] Exit\n')
+    
     try:
         # Get user command
         cmd = input('[>>] Your Command : ')
@@ -98,11 +101,15 @@ def UserOptions():
         elif cmd == '7':
             sys.exit(2)
         else:
-            print(Fore.RED + '\n[!] Invalid Command')
-            print(Fore.RESET)
-            # Run windows PAUSE command 
-            os.system('PAUSE')
-            UserOptions()
+            raise InvalidCommandError("Invalid command")
+
+    except InvalidCommandError as e:
+        print(Fore.RED + '\n[!] Invalid Command')
+        print(Fore.RESET)
+        # Run windows PAUSE command 
+        os.system('PAUSE')
+        UserOptions()
+
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
         UserOptions()

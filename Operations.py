@@ -10,12 +10,18 @@ This script handles login and password operations in RootHash
 
 from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
+
+from errors import PasswordNotMatchError
+
 import getpass as code              #For get the windows user account name and secure input
+
+from errors import *                #errors.py Script
 import Credit as CDT                #Credit.py Script
 import initialize as ITZ            #initialize.py Script
 import Records as RCD               #Records.py Script
 import frontUI as FUI               #frontUI.py Script
 import InfoSec                      #InfoSec.py Script
+
 import os
 
 
@@ -147,12 +153,12 @@ def change_mastercode():
             NewP = code.getpass('[!] Enter new root password : ')
             # Get new master password again from user
             ConfirmP = code.getpass('[!] Confirm root password : ')
-
+            
             # Matching new master password
             if NewP != ConfirmP:
                 print(Fore.RED + '\n[!] Password is not matching!')
                 print(Fore.RESET)
-                interrupt_input(1)
+                interrupt_input(change_mastercode)
             else:
                 # Validate password
                 isValidated = ValidatePassword(NewP)
@@ -220,14 +226,21 @@ def ValidatePassword(password):
     
     # Check password lenght
     if len(password) < 8:
-        return False
+        raise WeekPasswordError(" Password's  minimum length is 8", "27")
+        
     # Check, if password only contains digits
-    elif password.isdigit():
-        return False
+    if password.isdigit():
+        raise WeekPasswordError(" Password must have at least 1 digit", "25")
+        
     # Check, if password only contains letters
-    elif password.isalpha():
-        return False
+    if password.isalpha():
+        raise WeekPasswordError(" Password must have at least 1 letter", "26")
+        
     # Check if password contains ascii characters
-    elif password.isascii():
-        return True
-    
+    if password.isascii():
+        return True 
+
+def matchPassword(first, second):
+    if first != second:
+        raise PasswordNotMatchError("Passowrd is not matching")
+    return True

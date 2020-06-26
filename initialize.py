@@ -72,8 +72,8 @@ def create_database(Owner):
 def first_time():
     # This function executes first run in RootHash.
     # This will set Master password and owner name for RootHash
-    # Also initialize settings and databse files.
-    
+    # Also initialize settings and databse files.    
+   
     try:
         # Displays RootHash ASCII Art
         CDT.displayTitle(COLOR, FONT)
@@ -82,44 +82,62 @@ def first_time():
         # Get owner name for RootHash
         Owner = input('[!] Enter your name : ')
 
-        # Validate Name
-        if not Owner.isalpha():
-            print(Fore.RED+Style.BRIGHT + '\n[!] Name can only contain letters')
-            print(Fore.RESET)
-            os.system('PAUSE')
-            os.system('CLS')
-            first_time()
+        # Validate owner name
+        validateOwner(Owner)
 
         print('\nEnter a new root password.This will required when you enter RootHash')
+        print('\n[!] Password must contains at least 8 characters')
+        print('[!] Password must contains at least 1 digit')
+        print('[!] Password must contains at least 1 letter\n')
         # Get Master Password from user
         NewP = code.getpass('[!] New root password : ')
         # Get password again from user
-        ConfirmP = code.getpass('[!] Confirm root password : ')
+        ConfirmP = code.getpass('[!] Confirm root password : ')    
+
         # Verifying password
-        if NewP != ConfirmP:
-            print(Fore.RED+Style.BRIGHT + '\n[!] Password is not matching!')
-            print(Fore.RESET)            
-            OPT.interrupt_input(first_time)
-        else:
-            # Validate password
-            isValidated = OPT.ValidatePassword(NewP)            
-            if isValidated:
-                try:
-                    # Make RootHash directory
-                    os.mkdir(DPATH)
-                except FileExistsError:
-                    pass
-                # Create settings file
-                create_settings(Owner, NewP)
-                # Create database file
-                create_database(Owner)
-            else:
-                print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
-                print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 digit')
-                print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
-                print(Fore.RESET)
-                os.system('PAUSE')
-                OPT.interrupt_input(first_time)
+        OPT.matchPassword(NewP, ConfirmP)
+
+        # Validate password
+        OPT.ValidatePassword(NewP)
+
+        # Make RootHash directory
+        os.mkdir(DPATH)
+        # Create settings file
+        create_settings(Owner, NewP)
+        # Create database file
+        create_database(Owner)
+
+    # Owner Name contains none letters
+    except NotAlphaError as e:
+        print(Fore.RED+Style.BRIGHT + '\n[!] Name can only contain letters')
+        print(Fore.RESET)
+        os.system('PAUSE')
+        os.system('CLS')
+        first_time()
+
+    # Week Root Passwrod 
+    except WeekPasswordError as e:
+        if e.error_code == "25":            
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 1 digit')
+            
+        elif e.error_code == "26":
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 1 letter')
+
+        elif e.error_code == "27":
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
+
+        print(Fore.RESET)
+        OPT.interrupt_input(first_time)
+
+    # Root Password is not matching
+    except PasswordNotMatchError as e:
+        print(Fore.RED+Style.BRIGHT + '\n[!] Password is not matching!')
+        print(Fore.RESET)            
+        OPT.interrupt_input(first_time)
+
+    # If the RootHash Folder already exists, this will handle the error
+    except FileExistsError:
+        pass 
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
@@ -129,4 +147,4 @@ def first_time():
 def validateOwner(ownerName):
     if not ownerName.isalpha():
         raise NotAlphaError("Some characters are not allowed.")
-    
+    return True

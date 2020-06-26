@@ -76,7 +76,7 @@ def displayTitle(COLOR, FONT):
     print(COLOR+Style.BRIGHT)
 
     # Display RootHash title as ASCII art
-    tprint('RootHash', FONT)
+    tprint(' RootHash', FONT)
 
     # Reset color to default
     print(Fore.RESET)

@@ -1,11 +1,15 @@
 from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
+
 import tinydb as TDB                #For store data and manipulate data
+
+from errors import *                #errors.py Script
 import Credit as CDT                #Credit.py Script
 import Operations as OPT            #Credit.py Script
 import initialize as ITZ            #initialize.py Script
 import frontUI as FUI               #frontUI.py Script
 import InfoSec                      #InfoSec.py Script
+
 import os
 
 
@@ -247,7 +251,7 @@ def delete_entry(Owner):
         delete_entry(Owner)
 
 
-def check_record_ID(Owner,func):
+def check_record_ID(Owner,func) -> str:
     # This function is called when deleting or modifying record
     # This will check the id that user enterd
     # func is a parameter that decied the running situation
@@ -259,48 +263,50 @@ def check_record_ID(Owner,func):
         db = TDB.TinyDB(f'{DPATH}/{Owner}.json')
 
         # Get user command or record ID
-        x = input('[>>] Your Command : ')
+        ui = input('[>>] Your Command : ')
+
+        # If user entered a none digit character, validate command
+        # If validation falied, InvalidCommandException exception will be raised
+        if not ui.isdigit():
+            OPT.validateCommand(('V','v','Q','q'), ui)
+
         # Check the command or record ID user enterd above 
-        if x == 'V' or x == 'v':
+        if ui == 'V' or ui == 'v':
             # View All Records
             view_all(Owner)
 
-        elif x == 'Q' or x == 'q':
+        elif ui == 'Q' or ui == 'q':
             # Return to user options screen.
-            FUI.UserOptions()
-
-        elif (x == 'V' or x == 'v') and (x == 'Q' or x == 'q') and (not x.isdigit()):
-            print(Fore.RED + '\n[!] Invalid Record ID or Command.\n')
-            print(Fore.RESET)
-            os.system('PAUSE')
-            # Check running situation
-            modify(Owner) if func == 1 else delete_entry(Owner)
+            FUI.UserOptions()        
 
         else:            
-            Last_Record_ID = 0
+            Last_Record_ID = -1
             # Loop through the database to get the last record id
             for _ in db:
                 Last_Record_ID += 1
-            try:
-                # Validate the record id user enterd
-                if int(x) <= Last_Record_ID and int(x) >= 0:
-                    # Return the validated record id
-                    return x
-                    
-                else:
-                    # This part handle invalid record id
-                    print(Fore.RED + '\n[!] Invalid Record ID or Command.\n')
-                    print(Fore.RESET)
-                    os.system('PAUSE')
-                    # Check the running situation 
-                    modify(Owner) if func == 1 else delete_entry(Owner)
+            
+            # Validate the record id user enterd
+            if int(ui) <= Last_Record_ID and int(ui) >= 0:
+                # Return the validated record id
+                return ui
+                
+            else:
+                raise RecordNotFoundError("Record cannot be found")
 
-            except :
-                print(Fore.RED + '\n[!] Invalid Record ID or Command.\n')
-                print(Fore.RESET)
-                os.system('PAUSE')
-                # Check the running situation 
-                modify(Owner) if func == 1 else delete_entry(Owner)
+    except InvalidCommandError as e:
+        print(Fore.RED + '\n[!] Invalid Command.\n')
+        print(Fore.RESET)
+        os.system('PAUSE')
+        # Check running situation
+        modify(Owner) if func == 1 else delete_entry(Owner)
+
+    except RecordNotFoundError as e:
+        # This part handle invalid record id
+        print(Fore.RED + '\n[!] Invalid Record ID.\n')
+        print(Fore.RESET)
+        os.system('PAUSE')
+        # Check the running situation 
+        modify(Owner) if func == 1 else delete_entry(Owner)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:

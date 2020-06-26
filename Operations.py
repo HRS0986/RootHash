@@ -49,7 +49,7 @@ DPATH = ITZ.DPATH           # Database path
 EPATH = ITZ.EPATH
 
 
-def interrupt_input(func):
+def interrupt_input(func:'function'):
     # This function is called when setting master password.
     # If master password is not matching, this function is called
     # func is a parameter that decied the running situation
@@ -78,7 +78,7 @@ def interrupt_input(func):
         interrupt_input(func)
 
 
-def decode_root_pw():
+def decode_root_pw() -> str:
     # This function is called when RootHash need to use master password
     # This will decode the encrypted master password from settings file and return the password 
 
@@ -100,7 +100,7 @@ def decode_root_pw():
         ITZ.first_time()
 
 
-def getpw(Owner,func):
+def getpw(Owner:str, func:int) -> str:
     # This function will execute when getting password for a record from user.
     # This will return a string contain the password.
     # func is a parameter that decied which is the running situation.
@@ -115,15 +115,18 @@ def getpw(Owner,func):
         confirm = code.getpass('[!] Confirm account password : ')
         
         # Matching above two passwords
-        if confirm == password:
+        isMatched = matchPassword(password, confirm)
+
+        if isMatched:
             # Retrun Password
             return password
-        else:
-            print(Fore.RED + '\n[!] Password is not matching! Press any key to start again')   
-            print(Fore.RESET)         
-            os.system('PAUSE > nul')
-            # Check the running situation.
-            RCD.new_entry(Owner) if func == 1 else RCD.modify(Owner)
+
+    except PasswordNotMatchError as e:
+        print(Fore.RED + '\n[!] Password is not matching! Press any key to start again')
+        print(Fore.RESET)
+        os.system('PAUSE > nul')
+        # Check the running situation.
+        RCD.new_entry(Owner) if func == 1 else RCD.modify(Owner)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
@@ -133,10 +136,7 @@ def getpw(Owner,func):
 def change_mastercode():
     # This function is called when changing master password
     
-    try:
-        # Get decoded old master password from settings file
-        old = decode_root_pw()
-
+    try:        
         # Displays RootHash ASCII Art
         CDT.displayTitle(COLOR, FONT)
 
@@ -144,47 +144,59 @@ def change_mastercode():
         opw = code.getpass('[!] Enter old root password : ')
 
         # Check old master password user entered above
-        if opw != old:
-            print(Fore.RED + '\n[!] Old root password is incorrect')
-            print(Fore.RESET)
-            interrupt_input(change_mastercode)
-        else:
-            # Get new master password from user
-            NewP = code.getpass('[!] Enter new root password : ')
-            # Get new master password again from user
-            ConfirmP = code.getpass('[!] Confirm root password : ')
-            
-            # Matching new master password
-            if NewP != ConfirmP:
-                print(Fore.RED + '\n[!] Password is not matching!')
-                print(Fore.RESET)
-                interrupt_input(change_mastercode)
-            else:
-                # Validate password
-                isValidated = ValidatePassword(NewP)
-                if isValidated:
-                    Owner = ''
-                    # Access settings file
-                    with open(SPATH, 'r') as sfile:
-                        # Get owner name
-                        Owner = sfile.readline()
+        checkRoot(opw)
+        
+        # Get new master password from user
+        NewP = code.getpass('[!] Enter new root password : ')
 
-                    # Access settings file
-                    with open(SPATH, 'w') as sfile:
-                        # Write new encrypteed master password on settings file 
-                        sfile.write(f'{Owner}{InfoSec.Encode(NewP)}')
-                        
-                    print(Fore.GREEN + '\n[+] Password changed successfully')
-                    print(Fore.RESET)
-                    os.system('PAUSE')
-                    # Return to user options screen.
-                    FUI.UserOptions()
-                else:
-                    print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
-                    print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 digit')
-                    print(Fore.RED+Style.BRIGHT + '[!] Password must contains at least 1 letter')
-                    print(Fore.RESET)                    
-                    interrupt_input(change_mastercode)
+        # Get new master password again from user
+        ConfirmP = code.getpass('[!] Confirm root password : ')
+        
+        # Matching new master password
+        matchPassword(NewP, ConfirmP)
+        
+        # Validate password
+        ValidatePassword(NewP)
+        
+        Owner = ''
+        # Access settings file
+        with open(SPATH, 'r') as sfile:
+            # Get owner name
+            Owner = sfile.readline()
+
+        # Access settings file
+        with open(SPATH, 'w') as sfile:
+            # Write new encrypteed master password on settings file 
+            sfile.write(f'{Owner}{InfoSec.Encode(NewP)}')
+            
+        print(Fore.GREEN + '\n[+] Password changed successfully')
+        print(Fore.RESET)
+        os.system('PAUSE')
+        # Return to user options screen.
+        FUI.UserOptions()           
+
+    except PasswordNotMatchError as e:
+        print(Fore.RED + '\n[!] Password is not matching!')
+        print(Fore.RESET)
+        interrupt_input(change_mastercode)
+
+    except WrongPasswordError as e:
+        print(Fore.RED + '\n[!] Old root password is incorrect')
+        print(Fore.RESET)
+        interrupt_input(change_mastercode)
+
+    except WeekPasswordError as e:
+        if e.error_code == "25":            
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 1 digit')
+            
+        elif e.error_code == "26":
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 1 letter')
+
+        elif e.error_code == "27":
+            print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
+
+        print(Fore.RESET)                    
+        interrupt_input(change_mastercode)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
@@ -197,30 +209,31 @@ def login():
     try:
         # Displays RootHash ASCII Art
         CDT.displayTitle(COLOR, FONT)
-
-        # Get decoded root password of RootHash from settings file
-        pw = decode_root_pw()
+        
         # Get password as secure input
-        x = code.getpass('[!] Enter root password : ')
+        password = code.getpass('[!] Enter root password : ')
 
         # Verify Password
-        if x == pw:
+        isCorrect = checkRoot(password)
+        
+        if isCorrect:
             # Enter the RootHash
-            FUI.UserOptions()
-        else:
-            # Invalid Password
-            print(Fore.RED + '\n[!] Invalid root password!')
-            print(Fore.RESET)
-            # Run windows PAUSE command 
-            os.system('PAUSE')
-            login()
+            FUI.UserOptions()        
+
+    except WrongPasswordError as e:
+        # Invalid Password
+        print(Fore.RED + '\n[!] Invalid root password!')
+        print(Fore.RESET)
+        # Run windows PAUSE command 
+        os.system('PAUSE')
+        login()
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
         login()
 
 
-def ValidatePassword(password):
+def ValidatePassword(password) -> bool:
     # This function validate master password when changing or setting it
     # This will return boolean value
     
@@ -240,7 +253,25 @@ def ValidatePassword(password):
     if password.isascii():
         return True 
 
-def matchPassword(first, second):
+
+def matchPassword(first, second) -> bool:
+    #This function will check, if two passwords  are same
+
     if first != second:
         raise PasswordNotMatchError("Passowrd is not matching")
+    return True
+
+def checkRoot(password) -> bool:
+    # This function check the user input password with real password
+
+    # Get decoded root password of RootHash from settings file
+    pw = decode_root_pw()
+
+    if password != pw:
+        raise WrongPasswordError("Password incorrect")
+    return True
+
+def validateCommand(cmds:tuple, ui:str) -> bool:
+    if not ui in cmds:
+        raise InvalidCommandError("Invalid command")
     return True

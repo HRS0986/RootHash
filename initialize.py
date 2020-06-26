@@ -83,12 +83,14 @@ def first_time():
         Owner = input('[!] Enter your name : ')
 
         # Validate owner name
-        validateOwner(Owner)
+        if not Owner.isalpha():
+            raise NotAlphaError("Some characters are not allowed.")
 
         print('\nEnter a new root password.This will required when you enter RootHash')
         print('\n[!] Password must contains at least 8 characters')
         print('[!] Password must contains at least 1 digit')
         print('[!] Password must contains at least 1 letter\n')
+
         # Get Master Password from user
         NewP = code.getpass('[!] New root password : ')
         # Get password again from user
@@ -142,9 +144,3 @@ def first_time():
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
         first_time()
-
-
-def validateOwner(ownerName):
-    if not ownerName.isalpha():
-        raise NotAlphaError("Some characters are not allowed.")
-    return True

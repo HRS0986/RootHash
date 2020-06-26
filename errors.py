@@ -7,7 +7,7 @@ class PasswordNotMatchError(Exception):
 
 class WrongPasswordError(Exception):
     def __init__(self, error):
-        super(WrongPasswordError).__init__(error)
+        super(WrongPasswordError, self).__init__(error)
         self.error_code = 21
 
 class InvalidCommandError(Exception):

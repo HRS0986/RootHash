@@ -9,6 +9,9 @@ import InfoSec                      #InfoSec.py Script
 import os
 
 
+# RootHash Database Path
+DPATH = ITZ.DPATH
+
 # Initialize colorama module
 init(convert=True)
 
@@ -79,7 +82,7 @@ def modify(Owner):
         print('[!] Enter V for view all.Enter Q for return to menu or enter record ID for modify\n')
         
         # Get the record id from user and check the id is a valid id
-        ModifyID = check_ID(Owner,1)
+        ModifyID = check_record_ID(Owner,1)
         # Create a database query
         # This query use to modify a record from database 
         RQ = TDB.Query()
@@ -109,7 +112,7 @@ def modify(Owner):
         # Get new account name from user
         account = str(input('[!] Enter account name : '))
         # Get new username for the account from user
-        username = str(input('[!] Enter account username : '))
+        username = str(input('[!] Enter account username or email : '))
         # Get new password for the account from user
         password = OPT.getpw(Owner,2)
         note = str(input('[!] Special notes(Optional) : '))
@@ -200,7 +203,7 @@ def delete_entry(Owner):
         print('[!] Enter V for view all.Enter Q for return to menu or enter record ID for delete\n')
 
         # Get the record id from user and check the id is a valid id
-        DeleteID = check_ID(Owner,2)
+        DeleteID = check_record_ID(Owner,2)
 
         # Loop variable
         j = 0
@@ -244,7 +247,7 @@ def delete_entry(Owner):
         delete_entry(Owner)
 
 
-def check_ID(Owner,func):
+def check_record_ID(Owner,func):
     # This function is called when deleting or modifying record
     # This will check the id that user enterd
     # func is a parameter that decied the running situation
@@ -301,4 +304,4 @@ def check_ID(Owner,func):
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        check_ID(Owner,func)
+        check_record_ID(Owner,func)

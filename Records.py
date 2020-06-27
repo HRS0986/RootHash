@@ -13,13 +13,10 @@ import InfoSec                      #InfoSec.py Script
 import os
 
 
-# RootHash Database Path
-DPATH = ITZ.DPATH
-
 # Initialize colorama module
 init(convert=True)
 
-def new_entry(Owner):
+def new_entry(Owner, DPATH, COLOR, FONT):
     # This function create a new record and save the record in database.
     
     try:
@@ -36,7 +33,7 @@ def new_entry(Owner):
         username = str(input('[!] Enter account username : '))
 
         # Get password for the account from user.
-        password = OPT.getpw(Owner,1)
+        password = OPT.getpw(Owner, 1, DPATH, COLOR, FONT)
 
         # Get any special note about account from user.This is not required.This is an optional field.
         note = str(input('[!] Special notes(Optional) : '))
@@ -57,7 +54,7 @@ def new_entry(Owner):
         x = input('[>>] Your Command : ')
         if x == '1':
             # Create new record again.
-            new_entry(Owner)
+            new_entry(Owner, DPATH, COLOR, FONT)
         elif x == '2':
             # Exit RootHash.
             os.system('EXIT')
@@ -67,10 +64,10 @@ def new_entry(Owner):
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        new_entry(Owner)
+        new_entry(Owner, DPATH, COLOR, FONT)
 
 
-def modify(Owner):
+def modify(Owner, DPATH, COLOR, FONT):
     # This function is called when modifying an exsiting record.
     # User may input the record id that wish to modify.
             
@@ -86,7 +83,7 @@ def modify(Owner):
         print('[!] Enter V for view all.Enter Q for return to menu or enter record ID for modify\n')
         
         # Get the record id from user and check the id is a valid id
-        ModifyID = check_record_ID(Owner,1)
+        ModifyID = check_record_ID(Owner, 1, DPATH)
         # Create a database query
         # This query use to modify a record from database 
         RQ = TDB.Query()
@@ -118,7 +115,7 @@ def modify(Owner):
         # Get new username for the account from user
         username = str(input('[!] Enter account username or email : '))
         # Get new password for the account from user
-        password = OPT.getpw(Owner,2)
+        password = OPT.getpw(Owner, 2, DPATH, COLOR, FONT)
         note = str(input('[!] Special notes(Optional) : '))
 
         # Encrypt the details user entered above
@@ -140,7 +137,7 @@ def modify(Owner):
         x = input('[>>] Your Command : ')
         if x == '1':
             # Modify another record again
-            modify(Owner)
+            modify(Owner, DPATH, COLOR, FONT)
         elif x == '2':
             # Exit RootHash
             os.system('EXIT')
@@ -150,10 +147,10 @@ def modify(Owner):
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        modify(Owner)
+        modify(Owner, DPATH, COLOR, FONT)
 
 
-def view_all(Owner):
+def view_all(Owner, DPATH, COLOR, FONT):
     # This function displays all records.
         
     try:
@@ -189,10 +186,10 @@ def view_all(Owner):
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        view_all(Owner)
+        view_all(Owner, DPATH, COLOR, FONT)
 
 
-def delete_entry(Owner):
+def delete_entry(Owner, DPATH, COLOR, FONT):
     # When deleting an exsiting record, this function is called.
     # User may input the record id that wish to delete from databse
     try:
@@ -207,7 +204,7 @@ def delete_entry(Owner):
         print('[!] Enter V for view all.Enter Q for return to menu or enter record ID for delete\n')
 
         # Get the record id from user and check the id is a valid id
-        DeleteID = check_record_ID(Owner,2)
+        DeleteID = check_record_ID(Owner, 2, DPATH)
 
         # Loop variable
         j = 0
@@ -238,7 +235,7 @@ def delete_entry(Owner):
         x = input('\n[>>] Your Command : ')
         if x == '1':
             # Delete another reocrd again
-            delete_entry(Owner)
+            delete_entry(Owner, DPATH, COLOR, FONT)
         elif x == '2':
             # Exit RootHash
             os.system('EXIT')
@@ -248,10 +245,10 @@ def delete_entry(Owner):
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        delete_entry(Owner)
+        delete_entry(Owner, DPATH, COLOR, FONT)
 
 
-def check_record_ID(Owner,func) -> str:
+def check_record_ID(Owner, func, DPATH) -> str:
     # This function is called when deleting or modifying record
     # This will check the id that user enterd
     # func is a parameter that decied the running situation
@@ -273,7 +270,7 @@ def check_record_ID(Owner,func) -> str:
         # Check the command or record ID user enterd above 
         if ui == 'V' or ui == 'v':
             # View All Records
-            view_all(Owner)
+            view_all(Owner, DPATH, COLOR, FONT)
 
         elif ui == 'Q' or ui == 'q':
             # Return to user options screen.
@@ -297,17 +294,27 @@ def check_record_ID(Owner,func) -> str:
         print(Fore.RED + '\n[!] Invalid Command.\n')
         print(Fore.RESET)
         os.system('PAUSE')
+
         # Check running situation
-        modify(Owner) if func == 1 else delete_entry(Owner)
+        if func == 1: 
+            modify(Owner, DPATH, COLOR, FONT)
+
+        else: 
+            delete_entry(Owner, DPATH, COLOR, FONT)
 
     except RecordNotFoundError as e:
         # This part handle invalid record id
         print(Fore.RED + '\n[!] Invalid Record ID.\n')
         print(Fore.RESET)
         os.system('PAUSE')
-        # Check the running situation 
-        modify(Owner) if func == 1 else delete_entry(Owner)
+
+        # Check running situation
+        if func == 1: 
+            modify(Owner, DPATH, COLOR, FONT)
+
+        else: 
+            delete_entry(Owner, DPATH, COLOR, FONT
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        check_record_ID(Owner,func)
+        check_record_ID(Owner, func, DPATH)

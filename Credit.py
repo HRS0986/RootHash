@@ -11,9 +11,7 @@ init(convert=True)
 def about(COLOR, FONT):
     # RootHash Credits Displaying
     
-    try:
-        # Set RootHash Font styles
-        styles = ('isometric', 'STAR WARS', 'larry 3d', 'swampland', 'big','merlin1','amcaaa','banner3-d','arrows','heapy3d', 'BROADWAY')        
+    try:        
         t = ''
 
         # This part handle RootHash title animation =========================

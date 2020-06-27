@@ -14,46 +14,47 @@ from art import tprint              #For Display the RootHash ASCII Art
 
 from errors import InvalidCommandError
 
-import Records as RCD               #RootHash Records.py script
-import Operations as OPT            #RootHash Operations.py script
-import initialize as ITZ            #initialize.py Script
-import Credit as CDT                #RootHash Credit.py script
+import Records as RCD                   #RootHash Records.py script
+import Operations as OPT                #RootHash Operations.py script
+import Credit as CDT                    #RootHash Credit.py script
 
 import os
 import sys
 
-#Initialize colorama module
+from initialize import Initializer
+
+
+# Initialize colorama module
 init(convert=True)
 
-#RootHash Title Font Styles
-styles = ITZ.styles
+# Create Initializer instance
+Root = Initializer()
 
-#RootHash Colors
-colors = ITZ.colors
+# Choose random font style from above fonts
+FONT = Root.FONT
 
-#Choose random font style from above fonts
-FONT = ITZ.FONT
+# Choose random color from above colors
+COLOR = Root.COLOR
 
-#Choose random color from above colors
-COLOR = ITZ.COLOR
+# Get the user account name
+user = Root.user
 
-#Get the user account name
-user = ITZ.user
+# This part contains path variables
+SPATH = Root.SPATH        # Settings path
+DPATH = Root.DPATH        # Database path
 
-#This part contains path variables
-Spath = ITZ.SPATH        # Settings path
-Dpath = ITZ.DPATH        # Database path
-
-#Strating function
+# Strating function
 def main():
-    if os.path.exists(Dpath):
-        #RootHash Login 
-        OPT.login()
+    if os.path.exists(DPATH):
+        #R ootHash Login 
+        OPT.login(COLOR, FONT, SPATH)
+
     else:
-        #When RootHash execute first time in a computer, this will run
-        ITZ.first_time()
+        # When RootHash execute first time in a computer, this will run
+        Root.first_time()
 
 def UserOptions():
+    
     # Clear terminal window
     os.system('CLS')     
     print('\n   ')
@@ -63,16 +64,19 @@ def UserOptions():
     print(Fore.RESET)
     print('\n')
 
-    #This part get the RootHash owner name from settings file
+    # This part get the RootHash owner name from settings file
     Owner = ''
+
     # Open settings file
     with open(Spath, 'r') as F:
         Owner = F.read()
+
     k = Owner.split('\n')
+
     # Get owner name into variable
     Owner = k[0]
 
-    #RootHash user options in welcome screen
+    # RootHash user options in welcome screen
     print(f' Welcome To RootHash {Owner}')
     print(' \t[1] Add New Record')
     print(' \t[2] Modify Record')
@@ -87,19 +91,26 @@ def UserOptions():
         cmd = input('[>>] Your Command : ')
 
         if cmd == '1':
-            RCD.new_entry(Owner)
+            RCD.new_entry(Owner, DPATH, COLOR, FONT)
+
         elif cmd == '2':
-            RCD.modify(Owner)
+            RCD.modify(Owner, DPATH, COLOR, FONT)
+
         elif cmd == '3':
-            RCD.delete_entry(Owner)
+            RCD.delete_entry(Owner, DPATH, COLOR, FONT)
+
         elif cmd == '4':
-            RCD.view_all(Owner)
+            RCD.view_all(Owner, DPATH, COLOR, FONT)
+
         elif cmd == '5':
-            OPT.change_mastercode()
+            OPT.change_mastercode(SPATH, COLOR, FONT)
+
         elif cmd == '6':
             CDT.about(COLOR, FONT)
+
         elif cmd == '7':
             sys.exit(2)
+
         else:
             raise InvalidCommandError("Invalid command")
 

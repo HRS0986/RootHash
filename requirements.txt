@@ -1,0 +1,3 @@
+tinydb==4.1.1
+colorama==0.4.3
+art==4.7

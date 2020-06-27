@@ -12,6 +12,7 @@ from colorama import Fore,Style     #For Colored Text In Terminal
 from colorama import init           #For Colored Text In Terminal
 
 from errors import PasswordNotMatchError
+from initialize import Initializer
 
 import getpass as code              #For get the windows user account name and secure input
 
@@ -28,25 +29,18 @@ import os
 # Initialize colorama module
 init()
 
-# RootHash Title Font Styles
-styles = ITZ.styles
+# # Choose random color from above colors
+# COLOR = ITZ.COLOR
 
-# RootHash Colors
-colors = ITZ.colors
+# # Choose random font style from above fonts
+# FONT = ITZ.FONT
 
-# Choose random color from above colors
-COLOR = ITZ.COLOR
+# # Get the user account name
+# user = ITZ.user
 
-# Choose random font style from above fonts
-FONT = ITZ.FONT
-
-# Get the user account name
-user = ITZ.user
-
-# This part contains path variables
-SPATH = ITZ.SPATH           # Settings path
-DPATH = ITZ.DPATH           # Database path
-EPATH = ITZ.EPATH
+# # This part contains path variables
+# SPATH = ITZ.SPATH           # Settings path
+# DPATH = ITZ.DPATH           # Database path
 
 
 def interrupt_input(func:'function'):
@@ -78,7 +72,7 @@ def interrupt_input(func:'function'):
         interrupt_input(func)
 
 
-def decode_root_pw() -> str:
+def decode_root_pw(SPATH) -> str:
     # This function is called when RootHash need to use master password
     # This will decode the encrypted master password from settings file and return the password 
 
@@ -97,10 +91,10 @@ def decode_root_pw() -> str:
         return pw
     # if settings file is not exsist, this part will be execute
     except FileNotFoundError:        
-        ITZ.first_time()
+        Initializer().first_time()
 
 
-def getpw(Owner:str, func:int) -> str:
+def getpw(Owner, func:int, DPATH, COLOR, FONT) -> str:
     # This function will execute when getting password for a record from user.
     # This will return a string contain the password.
     # func is a parameter that decied which is the running situation.
@@ -125,15 +119,19 @@ def getpw(Owner:str, func:int) -> str:
         print(Fore.RED + '\n[!] Password is not matching! Press any key to start again')
         print(Fore.RESET)
         os.system('PAUSE > nul')
+
         # Check the running situation.
-        RCD.new_entry(Owner) if func == 1 else RCD.modify(Owner)
+        if func == 1:
+            RCD.new_entry(Owner, DPATH, COLOR, FONT)
+        else: 
+            RCD.modify(Owner, DPATH, COLOR, FONT)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        getpw(Owner,func)
+        getpw(Owner, func, DPATH, COLOR, FONT)
 
 
-def change_mastercode():
+def change_mastercode(SPATH, COLOR, FONT):
     # This function is called when changing master password
     
     try:        
@@ -144,7 +142,7 @@ def change_mastercode():
         opw = code.getpass('[!] Enter old root password : ')
 
         # Check old master password user entered above
-        checkRoot(opw)
+        checkRoot(opw, SPATH)
         
         # Get new master password from user
         NewP = code.getpass('[!] Enter new root password : ')
@@ -178,12 +176,12 @@ def change_mastercode():
     except PasswordNotMatchError as e:
         print(Fore.RED + '\n[!] Password is not matching!')
         print(Fore.RESET)
-        interrupt_input(change_mastercode)
+        interrupt_input(lambda : change_mastercode(SPATH, COLOR, FONT))
 
     except WrongPasswordError as e:
         print(Fore.RED + '\n[!] Old root password is incorrect')
         print(Fore.RESET)
-        interrupt_input(change_mastercode)
+        interrupt_input(lambda : change_mastercode(SPATH, COLOR, FONT))
 
     except WeekPasswordError as e:
         if e.error_code == "25":            
@@ -196,14 +194,14 @@ def change_mastercode():
             print(Fore.RED+Style.BRIGHT + '\n[!] Password must contains at least 8 characters')
 
         print(Fore.RESET)                    
-        interrupt_input(change_mastercode)
+        interrupt_input(lambda : change_mastercode(SPATH, COLOR, FONT))
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        change_mastercode()
+        change_mastercode(SPATH, COLOR, FONT)
 
 
-def login():
+def login(COLOR, FONT, SPATH):
     # RootHash Login function
     
     try:
@@ -214,11 +212,11 @@ def login():
         password = code.getpass('[!] Enter root password : ')
 
         # Verify Password
-        isCorrect = checkRoot(password)
+        isCorrect = checkRoot(password, SPATH)
         
         if isCorrect:
             # Enter the RootHash
-            FUI.UserOptions()        
+            FUI.UserOptions()
 
     except WrongPasswordError as e:
         # Invalid Password
@@ -226,11 +224,11 @@ def login():
         print(Fore.RESET)
         # Run windows PAUSE command 
         os.system('PAUSE')
-        login()
+        login(COLOR, FONT, SPATH)
 
     # This part ignores 'Ctrl+C cancel operation'
     except KeyboardInterrupt:
-        login()
+        login(COLOR, FONT, SPATH)
 
 
 def ValidatePassword(password) -> bool:
@@ -261,11 +259,11 @@ def matchPassword(first, second) -> bool:
         raise PasswordNotMatchError("Passowrd is not matching")
     return True
 
-def checkRoot(password) -> bool:
+def checkRoot(password, SPATH) -> bool:
     # This function check the user input password with real password
 
     # Get decoded root password of RootHash from settings file
-    pw = decode_root_pw()
+    pw = decode_root_pw(SPATH)
 
     if password != pw:
         raise WrongPasswordError("Password incorrect")
